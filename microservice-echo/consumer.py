@@ -49,7 +49,7 @@ class ConsumerBenchmark(Consumer):
         message.ack()
 
 
-if __name__ == '__main__':
+def run_microservice():
     hub = Hub()
     url = get_connection_url()
     connection = Connection(url)
@@ -60,3 +60,7 @@ if __name__ == '__main__':
 
     with ConsumerBenchmark(connection, [QUEUE_REQUEST]):
         hub.run_forever()
+
+
+if __name__ == '__main__':
+   run_microservice()
