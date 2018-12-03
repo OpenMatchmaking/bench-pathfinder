@@ -1,0 +1,150 @@
+version: "3"
+
+networks:
+  app-tier:
+    driver: bridge
+
+services:
+
+  gatling:
+    image: denvazh/gatling:3.0.0
+    volumes:
+      - ./gatling:/opt/gatling/
+    environment:
+      - JAVA_OPTS="-Dusers=10"
+    links:
+      - pathfinder
+    depends_on:
+      - pathfinder
+    networks:
+      - app-tier
+    tty: true
+
+  pathfinder:
+    image: openmatchmaking/pathfinder:latest
+    volumes:
+      - ./pathfinder-config.yml:/bench/pathfinder-config.yml
+    ports:
+      - 9000:9000
+    environment:
+      - CONFIG_PATH=/bench/pathfinder-config.yml
+      - LISTENED_IP=0.0.0.0
+      - LISTENED_PORT=9000
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_USERNAME=user
+      - RABBITMQ_PASSWORD=password
+      - RABBITMQ_VHOST=vhost
+      - LOG_LEVEL=warn
+    depends_on:
+      - rabbitmq
+    links:
+      - rabbitmq
+    networks:
+      - app-tier
+    tty: true
+
+  microservice_echo:
+    image: rabbitmq-worker
+    build:
+      context: .
+      dockerfile: ./microservice-echo/Dockerfile
+    environment:
+      - AMQP_HOST=rabbitmq
+      - AMQP_USERNAME=user
+      - AMQP_PASSWORD=password
+      - AMQP_VHOST=vhost
+    volumes:
+      - ./microservice-echo:/code
+    depends_on:
+      - rabbitmq
+    links:
+      - rabbitmq
+    networks:
+      - app-tier
+    tty: true
+
+  microservice_auth:
+    image: openmatchmaking/microservice-auth:0.2.0
+    environment:
+      - APP_DEBUG=False
+      - APP_SERVER=sanic
+      - APP_CONFIG_PATH=./config.py
+      - REDIS_HOST=redis
+      - MONGODB_USERNAME=user
+      - MONGODB_PASSWORD=password
+      - MONGODB_HOST=mongodb
+      - MONGODB_DATABASE=auth
+      - SERVICE_HOST=rabbitmq
+      - SERVICE_PORT=15672
+      - WAIT_FOR_MONGODB=30
+      - WAIT_FOR_RABBITMQ=30
+      - WAIT_FOR_SERVICE=30
+    depends_on:
+      - pathfinder
+      - rabbitmq
+      - mongodb
+      - redis
+    links:
+      - rabbitmq
+      - mongodb
+      - redis
+    networks:
+      - app-tier
+    tty: true
+
+  mongodb:
+    image: bitnami/mongodb:4.1
+    ports:
+      - 27017:27017
+    environment:
+      - MONGODB_USERNAME=user
+      - MONGODB_PASSWORD=password
+      - MONGODB_DATABASE=auth
+      - MONGODB_ROOT_PASSWORD=root
+    networks:
+      - app-tier
+
+  mongodb_ui:
+    image: adicom/admin-mongo:latest
+    ports:
+      - 1234:1234
+    environment:
+      - CONN_NAME=mongodb_connection
+      - DB_USERNAME=root
+      - DB_PASSWORD=root
+      - DB_HOST=mongodb
+    depends_on:
+      - mongodb
+    networks:
+      - app-tier
+
+  redis:
+    image: redis:latest
+    ports:
+      - 6379:6379
+    networks:
+      - app-tier
+
+  redis_ui:
+    image: tenstartups/redis-commander:latest
+    command: --redis-host redis
+    ports:
+    - 8082:8081
+    depends_on:
+    - redis
+    links:
+    - redis:redis
+    networks:
+    - app-tier
+
+  rabbitmq:
+    image: bitnami/rabbitmq:latest
+    ports:
+      - 5672:5672
+      - 15672:15672
+    environment:
+      - RABBITMQ_USERNAME=user
+      - RABBITMQ_PASSWORD=password
+      - RABBITMQ_VHOST=vhost
+    networks:
+      - app-tier

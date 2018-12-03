@@ -1,7 +1,7 @@
 FROM python:3.7-slim-stretch
 
 RUN mkdir /code
-COPY rabbitmq-worker/ /code
+COPY microservice-echo/ /code
 WORKDIR /code
 
 RUN pip3 install -r requirements.txt
