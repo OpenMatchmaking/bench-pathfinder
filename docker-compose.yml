@@ -9,7 +9,9 @@ services:
   gatling:
     image: denvazh/gatling:3.0.0
     volumes:
-      - ./gatling:/opt/gatling/
+      - ./gatling/conf:/opt/gatling/conf
+      - ./gatling/user-files:/opt/gatling/user-files
+      - ./gatling/results:/opt/gatling/results
     environment:
       - JAVA_OPTS="-Dusers=10"
     links:
@@ -37,6 +39,7 @@ services:
       - LOG_LEVEL=warn
     depends_on:
       - rabbitmq
+      - microservice_auth
     links:
       - rabbitmq
     networks:
@@ -57,6 +60,7 @@ services:
       - ./microservice-echo:/code
     depends_on:
       - rabbitmq
+      - microservice_auth
     links:
       - rabbitmq
     networks:
@@ -80,7 +84,6 @@ services:
       - WAIT_FOR_RABBITMQ=30
       - WAIT_FOR_SERVICE=30
     depends_on:
-      - pathfinder
       - rabbitmq
       - mongodb
       - redis
