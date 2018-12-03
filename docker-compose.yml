@@ -47,7 +47,7 @@ services:
     tty: true
 
   microservice_echo:
-    image: rabbitmq-worker
+    image: microservice-echo
     build:
       context: .
       dockerfile: ./microservice-echo/Dockerfile
