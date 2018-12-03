@@ -1,4 +1,4 @@
-FROM python:3.6.3-slim-jessie
+FROM python:3.7-slim-stretch
 
 RUN mkdir /code
 COPY rabbitmq-worker/ /code
