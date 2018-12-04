@@ -8,6 +8,8 @@ services:
 
   gatling:
     image: denvazh/gatling:3.0.0
+    environment:
+      - JAVA_OPTS=-Dusers=100 -Dramp=3
     volumes:
       - ./gatling/conf:/opt/gatling/conf
       - ./gatling/user-files:/opt/gatling/user-files
