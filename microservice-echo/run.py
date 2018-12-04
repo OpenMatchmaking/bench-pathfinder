@@ -1,4 +1,4 @@
-from .consumer import run_microservice
+from consumer import run_microservice
 
 
 if __name__ == '__main__':
