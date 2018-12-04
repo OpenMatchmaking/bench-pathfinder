@@ -31,7 +31,8 @@ services:
       - LISTENED_IP=0.0.0.0
       - LISTENED_PORT=9000
       - RABBITMQ_HOST=rabbitmq
-      - RABBITMQ_USERNAME=user
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USER=user
       - RABBITMQ_PASSWORD=password
       - RABBITMQ_VHOST=vhost
       - LOG_LEVEL=warn
