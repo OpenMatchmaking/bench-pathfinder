@@ -16,7 +16,7 @@ written in Scala for Gatling tool.
 # Repository structure  
 - `gatling`
   - `conf` - a bunch of configuration files for Gatling tool, e.g. Gatling itself / logging / Akka
-  - `results` - special folder which is used a storage for Gatling reports 
+  - `results` - special folder which is used as a storage for Gatling reports 
   - `user-files` - code with performance / load tests in Scala which are simulate a user's behaviour    
 -  `microservice-echo` stores the code for a small microservice that returns data to the caller as is, without any changes:
 
