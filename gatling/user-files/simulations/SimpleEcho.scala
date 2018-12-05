@@ -12,14 +12,14 @@ class SimpleEcho extends Simulation {
 
   val message = """
   |{
-  |  "url": "benchmark\/api\/test",
+  |  "url": "benchmark\/api\/echo",
   |  "content": {
   |     "text": "value"
   |  },
   |  "event-name": "simple-echo-benchmark"
   |}""".stripMargin
 
-  val scn = scenario("Receive valid response from microservice-echo.")
+  val scn = scenario("Receive valid response from microservice-echo without token check.")
     .exec(ws("Gateway").connect(server))
     .pause(1)
     .exec(
