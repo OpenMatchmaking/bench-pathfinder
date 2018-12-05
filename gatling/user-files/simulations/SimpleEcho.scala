@@ -25,7 +25,7 @@ class SimpleEcho extends Simulation {
     .exec(
       ws("Gateway")
         .sendText(message)
-        .await(10 seconds)(
+        .await(30 seconds)(
           ws.checkTextMessage("EchoResponseIsValid")
             .check(jsonPath("$.error").notExists)
             .check(jsonPath("$.event-name").ofType[String].is("simple-echo-benchmark"))

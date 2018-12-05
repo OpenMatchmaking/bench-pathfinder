@@ -8,6 +8,7 @@ import java.time.format.DateTimeFormatter
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 import scala.concurrent.duration._
+import scala.util.Random
 
 
 class EchoWithJwt extends Simulation {
@@ -16,10 +17,11 @@ class EchoWithJwt extends Simulation {
   val rampPeriod = Integer.getInteger("ramp", 60)
 
   def getRandomUserData() = {
+    val random = new Random()
     val timestamp = LocalDateTime.now
-    val timestamp_hash = BigInteger.valueOf(timestamp.hashCode()).toByteArray()
+    val username = "user_%d_%d".format(timestamp.hashCode(), random.nextLong())
     val md = MessageDigest.getInstance("MD5")
-    val digest = md.digest(timestamp_hash)
+    val digest = md.digest(username.getBytes())
     val bigInt = new BigInteger(1, digest)
     val hashedString = bigInt.toString(16)
     Map("user"-> hashedString)
@@ -39,7 +41,7 @@ class EchoWithJwt extends Simulation {
 
   val registerNewUser = ws("Gateway")
     .sendText(registerUserTemplate)
-    .await(10 seconds)(
+    .await(30 seconds)(
       ws.checkTextMessage("UserHasBeenRegisteredSuccessfully")
         .check(jsonPath("$.error").notExists)
         .check(jsonPath("$.event-name").ofType[String].is("echo-with-jwt-benchmark-step-1"))
@@ -58,7 +60,7 @@ class EchoWithJwt extends Simulation {
 
   val generateTokenForUser = ws("Gateway")
     .sendText(generateTokenTemplate)
-    .await(10 seconds)(
+    .await(30 seconds)(
       ws.checkTextMessage("UserReceivedNewJsonWebToken")
         .check(jsonPath("$.error").notExists)
         .check(jsonPath("$.event-name").ofType[String].is("echo-with-jwt-benchmark-step-2"))
@@ -78,7 +80,7 @@ class EchoWithJwt extends Simulation {
 
   val sendEchoRequest = ws("Gateway")
     .sendText(echoMessageTemplate)
-    .await(10 seconds)(
+    .await(30 seconds)(
       ws.checkTextMessage("EchoResponseIsValid")
         .check(jsonPath("$.error").notExists)
         .check(jsonPath("$.event-name").ofType[String].is("echo-with-jwt-benchmark-step-3"))
