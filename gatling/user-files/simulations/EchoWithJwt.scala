@@ -11,9 +11,9 @@ import scala.concurrent.duration._
 
 
 class EchoWithJwt extends Simulation {
-  val server = "ws://pathfinder:9000/"
-  val count = 1//Integer.getInteger("users", 100)
-  val rampPeriod = 1//Integer.getInteger("ramp", 60)
+  val server = System.getProperty("REMOTE_SERVER", "ws://pathfinder:9000/")
+  val count = Integer.getInteger("users", 100)
+  val rampPeriod = Integer.getInteger("ramp", 60)
 
   def getRandomUserData() = {
     val timestamp = LocalDateTime.now

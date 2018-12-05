@@ -6,7 +6,7 @@ import scala.concurrent.duration._
 
 
 class SimpleEcho extends Simulation {
-  val server = "ws://pathfinder:9000/"
+  val server = System.getProperty("REMOTE_SERVER", "ws://pathfinder:9000/")
   val count = Integer.getInteger("users", 100)
   val rampPeriod = Integer.getInteger("ramp", 60)
 
