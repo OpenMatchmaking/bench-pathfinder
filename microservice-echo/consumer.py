@@ -2,7 +2,7 @@ import os
 import json
 
 from kombu import Connection, Exchange, Queue, Producer, Consumer
-from kombu.async import Hub
+from kombu.asynchronous import Hub
 
 
 MICROSERVICE_BENCHMARK = "api.matchmaking.benchmark"
@@ -49,7 +49,7 @@ class ConsumerBenchmark(Consumer):
         message.ack()
 
 
-if __name__ == '__main__':
+def run_microservice():
     hub = Hub()
     url = get_connection_url()
     connection = Connection(url)
@@ -60,3 +60,7 @@ if __name__ == '__main__':
 
     with ConsumerBenchmark(connection, [QUEUE_REQUEST]):
         hub.run_forever()
+
+
+if __name__ == '__main__':
+   run_microservice()

@@ -1,0 +1,20 @@
+endpoints:
+  - generate-token:
+      url: "auth/api/token/new"
+      routing_key: "auth.token.new"
+      request_exchange: "open-matchmaking.auth.token.new.direct"
+      token_required: false
+  - register-user:
+      url: "auth/api/users/register"
+      routing_key: "auth.users.register"
+      request_exchange: "open-matchmaking.auth.users.register.direct"
+      token_required: false
+  - benchmark-test-api:
+      url: "benchmark/api/echo"
+      routing_key: "api.matchmaking.benchmark"
+      request_exchange: "open-matchmaking.direct"
+      token_required: false
+  - benchmark-test-api-with-jwt:
+      url: "benchmark/api/echo/jwt"
+      routing_key: "api.matchmaking.benchmark"
+      request_exchange: "open-matchmaking.direct"
