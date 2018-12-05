@@ -6,6 +6,7 @@ import scala.concurrent.duration._
 
 
 class SimpleEcho extends Simulation {
+  val server = "ws://pathfinder:9000/"
   val count = Integer.getInteger("users", 100)
   val rampPeriod = Integer.getInteger("ramp", 60)
 
@@ -19,7 +20,7 @@ class SimpleEcho extends Simulation {
   |}""".stripMargin
 
   val scn = scenario("Receive valid response from microservice-echo.")
-    .exec(ws("Gateway").connect("ws://pathfinder:9000/"))
+    .exec(ws("Gateway").connect(server))
     .pause(1)
     .exec(
       ws("Gateway")

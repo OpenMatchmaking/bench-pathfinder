@@ -9,7 +9,7 @@ services:
   gatling:
     image: denvazh/gatling:3.0.0
     environment:
-      - JAVA_OPTS=-Dusers=100 -Dramp=3
+      - JAVA_OPTS=-Dusers=100 -Dramp=3 -Dserver=ws://pathfinder:9000/
     volumes:
       - ./gatling/conf:/opt/gatling/conf
       - ./gatling/user-files:/opt/gatling/user-files
