@@ -14,7 +14,7 @@ services:
     environment:
       - LOCAL_DEVELOPMENT=true
       - REMOTE_SERVER=ws://pathfinder:9000/
-      - JAVA_OPTS=-Dusers=100 -Dramp=3
+      - JAVA_OPTS=-Dusers=100 -Dduration=60
     volumes:
       - ./gatling/conf:/opt/gatling/conf
       - ./gatling/user-files:/opt/gatling/user-files

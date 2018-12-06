@@ -3,12 +3,19 @@ package benchmark.Echo
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 import scala.concurrent.duration._
+import scala.math.{round}
 
 
 class SimpleEcho extends Simulation {
   val server = System.getProperty("REMOTE_SERVER", "ws://pathfinder:9000/")
-  val count = Integer.getInteger("users", 100)
-  val rampPeriod = Integer.getInteger("ramp", 60)
+  val usersCount = Integer.getInteger("users", 100)
+  val testDuration = Integer.getInteger("duration", 60)
+  val stages = Integer.getInteger("stages", 5)
+  val rampLasts = Integer.getInteger("ramp", 10)
+
+  val usersAtStart: Int       = round(usersCount.toFloat * 0.20f)
+  val usersIncrementStep: Int = round((usersCount.toFloat * 0.80f) / stages)
+  val levelDuration: Int      = round(testDuration.toFloat / stages)
 
   val message = """
   |{
@@ -35,5 +42,11 @@ class SimpleEcho extends Simulation {
     .pause(1)
     .exec(ws("Gateway").close)
 
-  setUp(scn.inject(rampUsers(count) during (rampPeriod seconds)))
+  setUp(scn.inject(
+    incrementConcurrentUsers(usersIncrementStep)
+      .times(stages)
+      .eachLevelLasting(levelDuration seconds)
+      .separatedByRampsLasting(rampLasts seconds)
+      .startingFrom(usersAtStart)
+  ))
 }
