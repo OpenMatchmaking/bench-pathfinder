@@ -28,6 +28,7 @@ class ConsumerBenchmark(Consumer):
     def __init__(self, *args, **kwargs):
         super(ConsumerBenchmark, self).__init__(*args, **kwargs)
         self.on_message = self.process_request
+        self.prefetch_count = 50
 
     def process_request(self, message):
         response = {
