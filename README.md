@@ -14,7 +14,7 @@ written in Scala for Gatling tool.
 7. The results will be saved in `/gatling/results` directory relatively to the root of this repository
 
 # Repository structure  
-- `gatling`
+- `gatling` stores a group of files for running simulations
   - `conf` - a bunch of configuration files for Gatling tool, e.g. Gatling itself / logging / Akka
   - `results` - special folder which is used as a storage for Gatling reports 
   - `user-files` - code with performance / load tests in Scala which are simulate a user's behaviour    
