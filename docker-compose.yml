@@ -14,7 +14,7 @@ services:
     environment:
       - LOCAL_DEVELOPMENT=true
       - REMOTE_SERVER=ws://pathfinder:9000/
-      - JAVA_OPTS=-Dusers=100 -Dduration=60
+      - JAVA_OPTS=-Dusers=1000 -Dduration=60
     volumes:
       - ./gatling/conf:/opt/gatling/conf
       - ./gatling/user-files:/opt/gatling/user-files
@@ -78,12 +78,15 @@ services:
     tty: true
 
   microservice_auth:
-    image: openmatchmaking/microservice-auth:0.2.0
+    image: openmatchmaking/microservice-auth:0.2.1
     environment:
       - APP_DEBUG=False
       - APP_SERVER=sanic
       - APP_CONFIG_PATH=./config.py
+      - APP_WORKERS=4
       - REDIS_HOST=redis
+      - REDIS_MIN_SIZE_POOL=100
+      - REDIS_MAX_SIZE_POOL=1000
       - MONGODB_USERNAME=user
       - MONGODB_PASSWORD=password
       - MONGODB_HOST=mongodb
