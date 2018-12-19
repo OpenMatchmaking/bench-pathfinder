@@ -7,7 +7,7 @@ import scala.math.{round}
 
 
 class SimpleEcho extends Simulation {
-  val server = System.getProperty("REMOTE_SERVER", "ws://pathfinder:9000/")
+  val server = System.getProperty("REMOTE_SERVER", "ws://pathfinder:9000")
   val usersCount = Integer.getInteger("users", 100)
   val testDuration = Integer.getInteger("duration", 60)
   val stages = Integer.getInteger("stages", 5)
@@ -26,11 +26,15 @@ class SimpleEcho extends Simulation {
   |  "event-name": "simple-echo-benchmark"
   |}""".stripMargin
 
+  val httpProtocol = http.wsBaseUrl(server)
+    .wsReconnect
+    .wsMaxReconnects(5)
+
   val scn = scenario("Receive valid response from microservice-echo without token check.")
-    .exec(ws("Gateway").connect(server))
+    .exec(ws("Connect").connect("/"))
     .pause(1)
     .exec(
-      ws("Gateway")
+      ws("Send request")
         .sendText(message)
         .await(30 seconds)(
           ws.checkTextMessage("EchoResponseIsValid")
@@ -40,7 +44,7 @@ class SimpleEcho extends Simulation {
         )
     )
     .pause(1)
-    .exec(ws("Gateway").close)
+    .exec(ws("Close").close)
 
   setUp(scn.inject(
     incrementConcurrentUsers(usersIncrementStep)
@@ -48,5 +52,5 @@ class SimpleEcho extends Simulation {
       .eachLevelLasting(levelDuration seconds)
       .separatedByRampsLasting(rampLasts seconds)
       .startingFrom(usersAtStart)
-  ))
+  )).protocols(httpProtocol)
 }

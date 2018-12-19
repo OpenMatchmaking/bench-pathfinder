@@ -13,7 +13,7 @@ import scala.util.Random
 
 
 class EchoWithJwt extends Simulation {
-  val server = System.getProperty("REMOTE_SERVER", "ws://pathfinder:9000/")
+  val server = System.getProperty("REMOTE_SERVER", "ws://pathfinder:9000")
   val usersCount = Integer.getInteger("users", 100)
   val testDuration = Integer.getInteger("duration", 60)
   val stages = Integer.getInteger("stages", 5)
@@ -46,9 +46,9 @@ class EchoWithJwt extends Simulation {
   |  "event-name": "echo-with-jwt-benchmark-step-1"
   |}""".stripMargin
 
-  val registerNewUser = ws("Gateway")
+  val registerNewUser = ws("Register user")
     .sendText(registerUserTemplate)
-    .await(30 seconds)(
+    .await(300 seconds)(
       ws.checkTextMessage("UserHasBeenRegisteredSuccessfully")
         .check(jsonPath("$.error").notExists)
         .check(jsonPath("$.event-name").ofType[String].is("echo-with-jwt-benchmark-step-1"))
@@ -65,9 +65,9 @@ class EchoWithJwt extends Simulation {
   |  "event-name": "echo-with-jwt-benchmark-step-2"
   |}""".stripMargin
 
-  val generateTokenForUser = ws("Gateway")
+  val generateTokenForUser = ws("Generate JSON Web Token")
     .sendText(generateTokenTemplate)
-    .await(30 seconds)(
+    .await(300 seconds)(
       ws.checkTextMessage("UserReceivedNewJsonWebToken")
         .check(jsonPath("$.error").notExists)
         .check(jsonPath("$.event-name").ofType[String].is("echo-with-jwt-benchmark-step-2"))
@@ -85,18 +85,22 @@ class EchoWithJwt extends Simulation {
   |  "token": "${token}"
   |}""".stripMargin
 
-  val sendEchoRequest = ws("Gateway")
+  val sendEchoRequest = ws("Send request")
     .sendText(echoMessageTemplate)
-    .await(30 seconds)(
+    .await(300 seconds)(
       ws.checkTextMessage("EchoResponseIsValid")
         .check(jsonPath("$.error").notExists)
         .check(jsonPath("$.event-name").ofType[String].is("echo-with-jwt-benchmark-step-3"))
         .check(jsonPath("$.content").ofType[String].is("""{"text":"value"}"""))
     )
 
+  val httpProtocol = http.wsBaseUrl(server)
+    .wsReconnect
+    .wsMaxReconnects(5)
+
   val scn = scenario("Receive valid response from microservice-echo with JSON Web Token check.")
     .feed(usersFeeder)
-    .exec(ws("Gateway").connect(server))
+    .exec(ws("Connect").connect("/"))
     .pause(1)
     .exec(registerNewUser)
     .pause(1)
@@ -104,7 +108,7 @@ class EchoWithJwt extends Simulation {
     .pause(1)
     .exec(sendEchoRequest)
     .pause(1)
-    .exec(ws("Gateway").close)
+    .exec(ws("Close").close)
 
   setUp(scn.inject(
     incrementConcurrentUsers(usersIncrementStep)
@@ -112,5 +116,5 @@ class EchoWithJwt extends Simulation {
       .eachLevelLasting(levelDuration seconds)
       .separatedByRampsLasting(rampLasts seconds)
       .startingFrom(usersAtStart)
-  ))
+  )).protocols(httpProtocol)
 }
